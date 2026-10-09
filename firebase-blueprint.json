@@ -1,0 +1,125 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Mahasiswa Undip user profile with coin balance and role",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "format": "email", "maxLength": 100 },
+        "role": { "type": "string", "enum": ["driver", "passenger", "both"] },
+        "faculty": { "type": "string", "maxLength": 100 },
+        "coins": { "type": "integer" },
+        "rating": { "type": "number" },
+        "phone": { "type": "string", "maxLength": 30 },
+        "createdAt": { "type": "integer" }
+      },
+      "required": ["id", "name", "email", "role", "coins"]
+    },
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "Registered campus vehicle for drivers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "merk": { "type": "string", "maxLength": 50 },
+        "model": { "type": "string", "maxLength": 50 },
+        "jenis": { "type": "string", "enum": ["Motor", "Mobil"] },
+        "warna": { "type": "string", "maxLength": 50 },
+        "plat": { "type": "string", "maxLength": 20 },
+        "isDefault": { "type": "boolean" }
+      },
+      "required": ["id", "userId", "merk", "model", "plat"]
+    },
+    "RideOffer": {
+      "title": "RideOffer",
+      "description": "Ride offer published by a student driver",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "driverId": { "type": "string", "maxLength": 128 },
+        "driverName": { "type": "string", "maxLength": 100 },
+        "origin": { "type": "string", "maxLength": 150 },
+        "destination": { "type": "string", "maxLength": 150 },
+        "departureTime": { "type": "string", "maxLength": 50 },
+        "fare": { "type": "integer" },
+        "status": { "type": "string", "enum": ["OPEN", "MATCHED", "COMPLETED", "CANCELLED"] },
+        "createdAt": { "type": "integer" }
+      },
+      "required": ["id", "driverId", "origin", "destination", "fare", "status"]
+    },
+    "RideRequest": {
+      "title": "RideRequest",
+      "description": "Single-seat ride request submitted by passenger to a driver offer",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "offerId": { "type": "string", "maxLength": 128 },
+        "driverId": { "type": "string", "maxLength": 128 },
+        "passengerId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["REQUESTED", "AGREED", "REJECTED", "EXPIRED", "CANCELLED"] },
+        "fare": { "type": "integer" },
+        "createdAt": { "type": "integer" },
+        "expiresAt": { "type": "integer" }
+      },
+      "required": ["id", "offerId", "driverId", "passengerId", "status", "expiresAt"]
+    },
+    "Trip": {
+      "title": "Trip",
+      "description": "Confirmed ongoing or completed shared trip record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "offerId": { "type": "string", "maxLength": 128 },
+        "driverId": { "type": "string", "maxLength": 128 },
+        "passengerId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["CONFIRMED", "ONGOING", "COMPLETED", "CANCELLED"] },
+        "fare": { "type": "integer" },
+        "coinsDeducted": { "type": "integer" },
+        "createdAt": { "type": "integer" }
+      },
+      "required": ["id", "driverId", "passengerId", "status", "fare"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "In-trip direct message between driver and passenger",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "tripId": { "type": "string", "maxLength": 128 },
+        "senderId": { "type": "string", "maxLength": 128 },
+        "text": { "type": "string", "maxLength": 1000 },
+        "createdAt": { "type": "integer" }
+      },
+      "required": ["id", "tripId", "senderId", "text", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile with coin balance"
+    },
+    "/vehicles/{vehicleId}": {
+      "schema": { "$ref": "#/entities/Vehicle" },
+      "description": "Student driver vehicle registry"
+    },
+    "/offers/{offerId}": {
+      "schema": { "$ref": "#/entities/RideOffer" },
+      "description": "Active and past ride offers"
+    },
+    "/requests/{requestId}": {
+      "schema": { "$ref": "#/entities/RideRequest" },
+      "description": "Pending and resolved ride requests"
+    },
+    "/trips/{tripId}": {
+      "schema": { "$ref": "#/entities/Trip" },
+      "description": "Shared active and historical trip records"
+    },
+    "/trips/{tripId}/chats/{messageId}": {
+      "schema": { "$ref": "#/entities/ChatMessage" },
+      "description": "Trip direct messages"
+    }
+  }
+}

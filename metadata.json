@@ -1,0 +1,6 @@
+{
+  "name": "AJUN - Antar Jemput UNDIP",
+  "description": "Aplikasi tebengan kampus mahasiswa Universitas Diponegoro (AJUN) dengan sistem matching searah, koin AJUN, real-time chat, dan demo sinkronisasi multi-akun.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

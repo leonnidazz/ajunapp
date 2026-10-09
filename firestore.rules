@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || resource.data.id == userId);
+      allow create, update: if isSignedIn() && request.auth.uid == userId && isValidId(userId);
+    }
+
+    // Vehicles Collection
+    match /vehicles/{vehicleId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isValidId(vehicleId) && (request.resource.data.userId == request.auth.uid || resource.data.userId == request.auth.uid);
+    }
+
+    // Offers Collection
+    match /offers/{offerId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(offerId) && request.resource.data.driverId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(offerId) && (resource.data.driverId == request.auth.uid);
+    }
+
+    // Requests Collection
+    match /requests/{requestId} {
+      allow read: if isSignedIn() && (resource.data.driverId == request.auth.uid || resource.data.passengerId == request.auth.uid);
+      allow create: if isSignedIn() && isValidId(requestId) && request.resource.data.passengerId == request.auth.uid;
+      allow update: if isSignedIn() && isValidId(requestId) && (resource.data.driverId == request.auth.uid || resource.data.passengerId == request.auth.uid);
+    }
+
+    // Trips Collection & Chat Subcollection
+    match /trips/{tripId} {
+      allow read: if isSignedIn() && (resource.data.driverId == request.auth.uid || resource.data.passengerId == request.auth.uid);
+      allow write: if isSignedIn() && isValidId(tripId) && (resource.data.driverId == request.auth.uid || resource.data.passengerId == request.auth.uid);
+
+      match /chats/{messageId} {
+        allow read: if isSignedIn() && isValidId(tripId);
+        allow create: if isSignedIn() && isValidId(messageId) && request.resource.data.senderId == request.auth.uid;
+      }
+    }
+  }
+}
