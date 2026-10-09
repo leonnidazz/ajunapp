@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import type { Request, Response } from 'express';
 import fs from 'fs';
@@ -1086,3 +1087,4 @@ async function startServer() {
 }
 
 startServer();
+
